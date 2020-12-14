@@ -50,3 +50,6 @@ node_modules/
 # Lock files
 pubspec.lock
 Podfile.lock
+
+# VS Code configuration
+.vscode/

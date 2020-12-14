@@ -274,8 +274,14 @@ class HomeDrawer extends StatelessWidget {
       NotificationDetails(
         android: AndroidNotificationDetails(
           'remainder_notification',
-          'remainder_notification_channel',
-          'A daily notification.',
+          'Ricordati di prendere la vitamina V',
+          'Notifica quotidiana',
+          enableVibration: true,
+          importance: Importance.high,
+          playSound: true,
+          priority: Priority.high,
+          visibility: NotificationVisibility.public,
+          category: 'CATEGORY_EVENT',
         ),
       ),
       uiLocalNotificationDateInterpretation:

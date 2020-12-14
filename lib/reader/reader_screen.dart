@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../common/debouncer.dart';
 import '../common/entities.dart';
 import '../common/extensions.dart';
 import '../common/vitaminav_preferences.dart';
@@ -35,7 +36,7 @@ class ReaderScreen extends StatefulWidget {
     @required this.pageBuilder,
     @required this.initialPage,
     this.initialScroll,
-    this.scrollOrIndexChanged = defaultScrollOrIndexChanged,
+    this.scrollOrIndexChanged,
   }) : super(key: key);
 
   static void defaultScrollOrIndexChanged(int index, double scroll) {}
@@ -48,6 +49,8 @@ class _ReaderScreen extends State<ReaderScreen> {
   PageController _pageController;
   int _currentPage;
   final List<ChangeNotifier> disposable = [];
+  final Debouncer saveIndexAndScrollDebouncer =
+      Debouncer(Duration(milliseconds: 1000));
 
   @override
   void initState() {
@@ -56,13 +59,21 @@ class _ReaderScreen extends State<ReaderScreen> {
     _pageController.addListener(() {
       if (_currentPage == null ||
           (_pageController.page - _currentPage).abs() >= 1) {
-        print('Changed page.');
         _currentPage = _pageController.page.round();
-        widget.scrollOrIndexChanged(_pageController.page.round(), 0);
+        _debouncedScrollOrIndexChanged(_pageController.page.round(), 0);
       }
     });
 
     disposable.add(_pageController);
+
+    _debouncedScrollOrIndexChanged(widget.initialPage, 0);
+  }
+
+  void _debouncedScrollOrIndexChanged(int index, double scroll) {
+    if (widget.scrollOrIndexChanged != null) {
+      saveIndexAndScrollDebouncer
+          .call(() => widget.scrollOrIndexChanged(index, scroll));
+    }
   }
 
   void _changeFontSize(delta) {
@@ -107,63 +118,73 @@ class _ReaderScreen extends State<ReaderScreen> {
             : null,
       ),
     ];
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-        actions: appBarActions,
+    return new WillPopScope(
+      onWillPop: _onWillPop,
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(widget.title),
+          actions: appBarActions,
+        ),
+        body: PageView.builder(
+            controller: _pageController,
+            itemCount: widget.dbIds.length,
+            itemBuilder: (context, index) {
+              final scrollController = ScrollController(
+                initialScrollOffset:
+                    widget.initialPage == index && widget.initialScroll != null
+                        ? widget.initialScroll
+                        : 0.0,
+                keepScrollOffset: true,
+              );
+
+              if (widget.scrollOrIndexChanged != null) {
+                scrollController.addListener(() {
+                  final scrollMargin = 50;
+                  final atTheBeginning = (_pageController.page == 0 &&
+                      scrollController.offset < 10);
+                  final atTheEnd =
+                      _pageController.page == widget.dbIds.length - 1 &&
+                          scrollController.offset >
+                              scrollController.position.maxScrollExtent -
+                                  scrollMargin;
+
+                  if (atTheBeginning || atTheEnd) {
+                    _debouncedScrollOrIndexChanged(null, null);
+                  } else {
+                    _debouncedScrollOrIndexChanged(
+                        _pageController.page.round(), scrollController.offset);
+                  }
+                });
+
+                disposable.add(scrollController);
+              }
+              return DefaultTextStyle(
+                style: TextStyle(
+                  fontFamily: 'RobotoSlab',
+                  fontSize: fontSize,
+                  color: Theme.of(context).brightness == Brightness.light
+                      ? Colors.black
+                      : Colors.white,
+                ),
+                child: widget.pageBuilder(
+                  dbIds: widget.dbIds,
+                  index: index,
+                  scrollPrev: (index ?? 0) > 0 ? _scrollPrev : null,
+                  scrollNext: (index ?? 0) < widget.dbIds.length - 1
+                      ? _scrollNext
+                      : null,
+                  scrollController: scrollController,
+                ),
+              );
+            }),
       ),
-      body: PageView.builder(
-          controller: _pageController,
-          itemCount: widget.dbIds.length,
-          itemBuilder: (context, index) {
-            final scrollController = ScrollController(
-              initialScrollOffset:
-                  widget.initialPage == index && widget.initialScroll != null
-                      ? widget.initialScroll
-                      : 0.0,
-              keepScrollOffset: true,
-            );
-
-            disposable.add(scrollController);
-
-            if (widget.scrollOrIndexChanged != null) {
-              scrollController.addListener(() {
-                final scrollMargin = 50;
-                final atTheBeginning =
-                    (_pageController.page == 0 && scrollController.offset < 10);
-                final atTheEnd =
-                    _pageController.page == widget.dbIds.length - 1 &&
-                        scrollController.offset >
-                            scrollController.position.maxScrollExtent -
-                                scrollMargin;
-
-                if (atTheBeginning || atTheEnd) {
-                  widget.scrollOrIndexChanged(null, null);
-                } else {
-                  widget.scrollOrIndexChanged(
-                      _pageController.page.round(), scrollController.offset);
-                }
-              });
-            }
-            return DefaultTextStyle(
-              style: TextStyle(
-                fontFamily: 'RobotoSlab',
-                fontSize: fontSize,
-                color: Theme.of(context).brightness == Brightness.light
-                    ? Colors.black
-                    : Colors.white,
-              ),
-              child: widget.pageBuilder(
-                dbIds: widget.dbIds,
-                index: index,
-                scrollPrev: (index ?? 0) > 0 ? _scrollPrev : null,
-                scrollNext:
-                    (index ?? 0) < widget.dbIds.length - 1 ? _scrollNext : null,
-                scrollController: scrollController,
-              ),
-            );
-          }),
     );
+  }
+
+  Future<bool> _onWillPop() async {
+    // Right before closing the screen, ensure that the latest position has been saved
+    saveIndexAndScrollDebouncer.flush();
+    return true;
   }
 
   @override

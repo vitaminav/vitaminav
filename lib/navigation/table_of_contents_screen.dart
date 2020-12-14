@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:vitaminav/Reader/reader_screen.dart';
-import 'package:vitaminav/common/debouncer.dart';
 import 'package:vitaminav/common/vitaminav_preferences.dart';
 
 import '../common/entities.dart';
@@ -37,9 +36,6 @@ class TableOfContentsScreen extends StatefulWidget {
 }
 
 class _TableOfContentsScreenState extends State<TableOfContentsScreen> {
-  final Debouncer saveIndexAndScrollDebouncer =
-      Debouncer(Duration(milliseconds: 1000));
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -132,11 +128,13 @@ class _TableOfContentsScreenState extends State<TableOfContentsScreen> {
   }
 
   void _saveState(BuildContext context, int index, double scroll) {
-    saveIndexAndScrollDebouncer.call(() {
-      VitaminaVPreferences.of(context).setSavedIndex(widget.savePrefix, index);
-      VitaminaVPreferences.of(context)
-          .setSavedScroll(widget.savePrefix, scroll);
-    });
+    VitaminaVPreferences.of(context).setSavedIndex(widget.savePrefix, index);
+    VitaminaVPreferences.of(context).setSavedScroll(widget.savePrefix, scroll);
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
   }
 }
 

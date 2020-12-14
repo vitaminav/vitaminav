@@ -3,6 +3,7 @@ import 'dart:async';
 /// A utility to debounce a generic [Function] by a given [Duration]
 class Debouncer {
   Timer timer;
+  void Function() activeFunction;
   final Duration duration;
 
   /// Creates a new [Debouncer] that will call a given function with a
@@ -19,5 +20,14 @@ class Debouncer {
     }
 
     timer = Timer(duration, function);
+    activeFunction = function;
+  }
+
+  /// Executes immediately any pending function
+  void flush() {
+    if (timer != null) {
+      timer.cancel();
+      activeFunction();
+    }
   }
 }

@@ -273,13 +273,15 @@ class HomeDrawer extends StatelessWidget {
       scheduledDate,
       NotificationDetails(
         android: AndroidNotificationDetails(
-          'remainder_notification',
+          'vitaminav_daily_remainder',
           'Ricordati di prendere la vitamina V',
           'Notifica quotidiana',
           enableVibration: true,
-          importance: Importance.high,
+          importance: Importance.max,
           playSound: true,
-          priority: Priority.high,
+          enableLights: true,
+          styleInformation: BigTextStyleInformation('Ricordati la vitamina V'),
+          priority: Priority.max,
           visibility: NotificationVisibility.public,
           category: 'CATEGORY_EVENT',
         ),

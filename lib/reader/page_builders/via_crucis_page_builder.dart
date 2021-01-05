@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:vitaminav/common/widgets.dart';
 import 'package:vitaminav/navigation/via_crucis_screen.dart';
 
 import '../../common/extensions.dart';
@@ -97,7 +98,7 @@ Widget viaCrucisPageBuilder({
                     textAlign: TextAlign.center,
                   ),
                   SizedBox(height: 40),
-                  Text(
+                  EmbeddedHtml(
                     comment,
                     textAlign: TextAlign.justify,
                   ),

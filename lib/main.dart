@@ -5,12 +5,12 @@ import 'common/extensions.dart';
 import 'common/vitaminav_preferences.dart';
 import 'home/home_screen.dart';
 
-void main() {
-  runApp(MyApp());
+FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+    FlutterLocalNotificationsPlugin();
 
+void main() {
+  WidgetsFlutterBinding.ensureInitialized();
   // Local notifications plugin initialization
-  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-      FlutterLocalNotificationsPlugin();
   const AndroidInitializationSettings initializationSettingsAndroid =
       AndroidInitializationSettings('ic_notification_icon');
   final IOSInitializationSettings initializationSettingsIOS =
@@ -31,6 +31,7 @@ void main() {
   );
 
   flutterLocalNotificationsPlugin.initialize(initializationSettings);
+  runApp(MyApp());
 }
 
 class MyApp extends StatefulWidget {

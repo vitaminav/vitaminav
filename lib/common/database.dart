@@ -29,6 +29,8 @@ Future<Database> _loadAssetDatabase(String dbName) async {
 
   // Copy a new database from the asset, if needed
   var exists = await databaseExists(path);
+
+  savedVersion = null; // TODO: PATCH: force database reload
   if (!exists || savedVersion == null || currentVersion != savedVersion) {
     // Create directories if needed
     try {

@@ -9,6 +9,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../common/constants.dart';
 import '../common/vitaminav_preferences.dart';
+import '../main.dart';
 import 'credits_screen.dart';
 import 'time_field.dart';
 
@@ -144,9 +145,6 @@ class HomeDrawer extends StatelessWidget {
   }
 
   Future<void> _disableNotification(BuildContext context) async {
-    FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-        FlutterLocalNotificationsPlugin();
-
     await flutterLocalNotificationsPlugin.cancel(0);
     VitaminaVPreferences.of(context).notificationHour = null;
     VitaminaVPreferences.of(context).notificationMinute = null;
@@ -247,9 +245,6 @@ class HomeDrawer extends StatelessWidget {
       print('Notifications rejected.');
       return false;
     }
-
-    FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-        FlutterLocalNotificationsPlugin();
 
     // Initialize time zones and set the current one
     tz.initializeTimeZones();

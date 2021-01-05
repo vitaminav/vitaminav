@@ -48,6 +48,9 @@ class EmbeddedHtml extends StatelessWidget {
         fontFamily: textStyle.fontFamily,
         fontSize: htmlStyle.FontSize(textStyle.fontSize),
         textAlign: textAlign,
+      ),
+      'body': htmlStyle.Style(
+        lineHeight: textStyle.height,
       )
     };
 

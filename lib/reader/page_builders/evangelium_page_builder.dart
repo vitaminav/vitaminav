@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:vitaminav/common/widgets.dart';
 
 import '../../common/database.dart';
 import '../../common/entities.dart';
@@ -77,12 +78,12 @@ ReaderPageBuilder evangeliumPageBuilder = ({
               height: 40,
             ),
             Container(
-              child: Text(
+              child: EmbeddedHtml(
                 quote,
-                style: TextStyle(
-                  height: 1.5,
-                  fontStyle: FontStyle.italic,
-                ),
+                textStyle: DefaultTextStyle.of(context).style.copyWith(
+                      height: 1.5,
+                      fontStyle: FontStyle.italic,
+                    ),
                 textAlign: TextAlign.justify,
               ),
               decoration: BoxDecoration(
@@ -95,10 +96,11 @@ ReaderPageBuilder evangeliumPageBuilder = ({
             SizedBox(
               height: 20,
             ),
-            Text(
+            EmbeddedHtml(
               comment,
-              style: TextStyle(height: 1.5),
               textAlign: TextAlign.justify,
+              textStyle:
+                  DefaultTextStyle.of(context).style.copyWith(height: 1.5),
             ),
             SizedBox(height: 100),
           ],
